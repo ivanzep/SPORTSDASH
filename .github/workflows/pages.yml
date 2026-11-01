@@ -1,4 +1,4 @@
-name: Deploy NFL Control Room to GitHub Pages
+name: Deploy SPORTSDASH to GitHub Pages
 on:
   push:
     branches: [main]
