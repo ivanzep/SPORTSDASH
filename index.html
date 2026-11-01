@@ -10,7 +10,6 @@
 const API='https://site.api.espn.com/apis/site/v2/sports/football/nfl';let activeSport='nfl',availableEvents=[];
 let columns=Math.min(6,Math.max(1,Number(localStorage.getItem('sportsdash-columns'))||3));
 function setColumns(n){columns=Math.min(6,Math.max(1,n));document.documentElement.style.setProperty('--game-columns',columns);el('column-count').textContent=columns;localStorage.setItem('sportsdash-columns',String(columns));el('zoom-out').disabled=columns===6;el('zoom-in').disabled=columns===1}
-el('zoom-out').onclick=()=>setColumns(columns+1);el('zoom-in').onclick=()=>setColumns(columns-1);setColumns(columns);
 document.querySelectorAll('#sports-tabs button').forEach(b=>b.addEventListener('click',()=>{el('f1-auth').hidden=b.dataset.sport!=='f1'}));
 const storageKey=()=> 'sportsdash-events-'+activeSport+'-'+el('date').value;
 const selected=()=>{try{return JSON.parse(localStorage.getItem(storageKey())||'[]')}catch{return []}};
