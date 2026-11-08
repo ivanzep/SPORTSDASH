@@ -9,8 +9,8 @@ function merge(old,patch){
  return result;
 }
 export class F1State{
- constructor(state,env){this.state=state;this.env=env;this.socket=null;this.buffer='';this.connected=false;this.error=null;this.lastUpdate=null;this.feeds={};this.starting=false;this.sessionStarted=false}
- async health(){return {connected:this.connected,lastUpdate:this.lastUpdate,error:this.error,upstream:FEED,receiver:'SignalR Core',status:this.connected?'connected':'disconnected'}}
+ constructor(state,env){this.state=state;this.env=env;this.socket=null;this.buffer='';this.connected=false;this.error=null;this.lastUpdate=null;this.feeds={};this.starting=false;this.sessionStarted=false;this.lastPing=0}
+ async health(){return {connected:this.connected,lastUpdate:this.lastUpdate,error:this.error,upstream:FEED,receiver:'SignalR Core',status:this.connected?'connected':'disconnected',dataReceived:Object.keys(this.feeds).length>0}}
  async snapshot(){
  const lines=this.feeds.TimingData?.Lines||{},drivers=this.feeds.DriverList||{},stints=this.feeds.TimingAppData?.Lines||{};
  const entries=Object.entries(lines).map(([number,line])=>{const driver=drivers[number]||{},ss=stints[number]?.Stints||[];const stint=Array.isArray(ss)?ss.at(-1):null;return {number:Number(number),name:driver.Tla||driver.LastName||number,team:driver.TeamName||'',position:Number(line.Position||99),gap:line.GapToLeader||'—',interval:line.IntervalToPositionAhead?.Value||'—',lap:line.NumberOfLaps||'—',lapTime:line.LastLapTime?.Value||'—',tyre:stint?.Compound||'—',stint:stint?.TotalLaps||'—'}}).sort((a,b)=>a.position-b.position);
