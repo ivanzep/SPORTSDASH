@@ -13,10 +13,21 @@
 <div class="meta" id="f1-pro-status" role="status" style="margin-top:5px">Not connected</div>
 <div style="margin-top:12px;padding:10px;background:#202d42;border:1px solid #3b4a61;border-radius:8px">
 <a href="https://f1tv.formula1.com/" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:10px 14px;background:#d22b30;border-radius:7px;color:#fff;text-decoration:none;font-weight:700">↗ Sign in to F1 TV (official website)</a>
-<div class="meta" style="margin-top:8px">Your F1 TV login stays on Formula 1's website. Signing in there does not automatically connect SPORTSDASH. Returning here still requires a temporary F1 account access token. SPORTSDASH never asks for your F1 TV password.</div>
+<div class="meta" style="margin-top:8px">Your F1 TV login stays on Formula 1's website. The site does not currently offer SPORTSDASH an approved one-click authorization callback, so signing in there alone cannot connect timing.</div>
+<details style="margin-top:10px" id="f1-account-guide">
+<summary style="cursor:pointer;font-weight:700">How to connect my F1 TV account</summary>
+<ol class="meta" style="line-height:1.7;padding-left:20px">
+<li>Sign in on the official F1 TV website (button above). Keep SPORTSDASH open in another tab.</li>
+<li>On a Windows, Mac, or Linux computer, use <a href="https://f1login.fastf1.dev/" target="_blank" rel="noopener noreferrer" style="color:#9fd0ff">FastF1 Companion</a> with the <a href="https://docs.fastf1.dev/" target="_blank" rel="noopener noreferrer" style="color:#9fd0ff">FastF1 sign-in workflow</a> to authorize your account locally. Companion requires a browser extension and FastF1; it cannot send tokens straight to SPORTSDASH.</li>
+<li>Obtain your temporary access token locally and copy it. Never copy your F1 TV password or share either credential in chat.</li>
+<li>Use <strong>Paste token from clipboard</strong> below, then select <strong>Connect F1 timing</strong>. The token remains in this tab's memory and is sent over HTTPS to the backend for the timing session.</li>
+</ol>
+<p class="meta">On iPad/iPhone, the desktop FastF1 Companion workflow may not be available. Direct browser-only OAuth integration is not supported here. You can still paste a token obtained on a trusted computer.</p>
+</details>
 </div>
-<p class="meta" style="margin-top:12px">Sign in with F1 separately using a legitimate account. Enter a temporary <strong>F1 account bearer access token</strong>, not your password. This site cannot obtain tokens from F1 automatically. The token is transmitted once to your backend over HTTPS and held in memory while this tab is open.</p>
+<p class="meta" style="margin-top:12px">Enter a temporary <strong>F1 account bearer access token</strong>, not your password. SPORTSDASH does not receive your F1 TV login credentials.</p>
 <input id="f1-pro-token" type="password" placeholder="Temporary F1 bearer token (not password)" autocomplete="off" spellcheck="false" style="width:min(390px,100%)">
+<button type="button" id="f1-pro-paste">Paste token from clipboard</button>
 <button id="f1-pro-start">Connect F1 timing</button>
 <button id="f1-pro-disconnect" disabled>Disconnect</button>
 <div class="meta" style="margin-top:6px">When this browser session ends, the Cloudflare receiver expires automatically. Reconnecting requires your token again.</div>
@@ -41,6 +52,7 @@ document.querySelectorAll('#sports-tabs button').forEach(b=>b.onclick=()=>{activ
 const el=id=>document.getElementById(id), esc=s=>String(s??'—').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 el('zoom-out').onclick=()=>setColumns(columns+1);el('zoom-in').onclick=()=>setColumns(columns-1);setColumns(columns);
 el('f1-pro-connect').onclick=()=>{try{F1ProClient.configure(el('f1-pro-url').value.trim());el('f1-pro-url').value=F1ProClient.endpoint();el('f1-pro-status').textContent='Backend ready; F1 token not connected'}catch(error){el('f1-pro-status').textContent=error.message}};
+el('f1-pro-paste').onclick=async()=>{try{if(!navigator.clipboard?.readText)throw Error('Clipboard access not available in this browser');const clip=await navigator.clipboard.readText();if(!clip||clip.trim().length<48)throw Error('No valid token found in clipboard');el('f1-pro-token').value=clip.trim();el('f1-pro-status').textContent='Token pasted locally. Select Connect F1 timing.'}catch(error){el('f1-pro-status').textContent='Clipboard unavailable: '+error.message+'. Paste into the token field manually.'}};
 el('f1-pro-start').onclick=async()=>{
   const token=el('f1-pro-token').value;el('f1-pro-token').value='';
   el('f1-pro-start').disabled=true;el('f1-pro-status').textContent='Connecting to F1 timing…';
