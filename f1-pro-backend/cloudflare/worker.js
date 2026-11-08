@@ -1,3 +1,4 @@
+import { DurableObject } from 'cloudflare:workers';
 // SPORTSDASH F1 timing relay. No F1 credentials or user session data are persisted.
 // The F1 SignalR Core API is unofficial and may change without notice.
 const SEP='\x1e';
@@ -10,8 +11,9 @@ function merge(old,patch){
   for(const [k,v] of Object.entries(patch)){if(v===null)delete out[k];else out[k]=merge(out[k],v)}
   return out;
 }
-export class F1State {
+export class F1State extends DurableObject {
   constructor(state,env){
+    super(state,env);
     this.state=state;this.env=env;this.socket=null;this.buffer='';this.phase='idle';this.error=null;
     this.feeds={};this.lastUpdate=null;this.lastSeen=0;this.starting=false;this.subscribed=false;
   }
@@ -62,7 +64,7 @@ export class F1State {
       if(negotiation.error)throw Error('F1 negotiate rejected the session');
       const connectionToken=negotiation.connectionToken||negotiation.connectionId;
       if(!connectionToken)throw Error('F1 negotiate did not return a connection ID');
-      const wsUrl=new URL(FEED.replace(/^http/,'ws'));
+      const wsUrl=new URL(FEED);
       wsUrl.searchParams.set('id',connectionToken);
       wsUrl.searchParams.set('access_token',token); // F1 upstream only; never a SPORTSDASH URL.
       const upgrade=await fetch(wsUrl.toString(),{headers:{...headers,Upgrade:'websocket'}});
