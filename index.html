@@ -11,6 +11,10 @@
 <input id="f1-pro-url" type="url" value="https://sportsdash-f1.zepivan.workers.dev" aria-label="F1 backend address" autocomplete="off" style="width:min(390px,100%)">
 <button id="f1-pro-connect">Set backend</button>
 <div class="meta" id="f1-pro-status" role="status" style="margin-top:5px">Not connected</div>
+<div style="margin-top:12px;padding:10px;background:#202d42;border:1px solid #3b4a61;border-radius:8px">
+<a href="https://f1tv.formula1.com/" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:10px 14px;background:#d22b30;border-radius:7px;color:#fff;text-decoration:none;font-weight:700">↗ Sign in to F1 TV (official website)</a>
+<div class="meta" style="margin-top:8px">Your F1 TV login stays on Formula 1's website. Signing in there does not automatically connect SPORTSDASH. Returning here still requires a temporary F1 account access token. SPORTSDASH never asks for your F1 TV password.</div>
+</div>
 <p class="meta" style="margin-top:12px">Sign in with F1 separately using a legitimate account. Enter a temporary <strong>F1 account bearer access token</strong>, not your password. This site cannot obtain tokens from F1 automatically. The token is transmitted once to your backend over HTTPS and held in memory while this tab is open.</p>
 <input id="f1-pro-token" type="password" placeholder="Temporary F1 bearer token (not password)" autocomplete="off" spellcheck="false" style="width:min(390px,100%)">
 <button id="f1-pro-start">Connect F1 timing</button>
