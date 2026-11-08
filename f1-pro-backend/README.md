@@ -1,32 +1,27 @@
-# SPORTSDASH — F1 TV Pro connector
+# SPORTSDASH F1 SignalR backend
 
-The existing GitHub Pages site cannot maintain a private F1 SignalR connection. This directory documents the backend interface for a separately hosted, private service. **This is an integration scaffold, not an authenticated live connector.**
+Node.js service using `@microsoft/signalr` to connect to the unofficial F1 SignalR Core timing endpoint and subscribe to live topics.
 
-## Security
-- Never commit F1 TV passwords, access tokens, cookies, or browser session exports.
-- Keep authentication on a private backend, not in the static frontend.
-- F1 TV Pro does not grant redistribution rights. Restrict any authenticated stream to permitted personal use.
-- Do not expose an unauthenticated proxy of your F1 TV feed on the public internet.
-- Review unofficial client compatibility and F1 terms before enabling access.
-
-## Expected backend contract
-GET /api/f1/snapshot?session_key=1234
-
-Example JSON:
-```json
-{
-  "session": {"session_key":1234,"session_name":"Qualifying"},
-  "live":true,
-  "entries":[{"number":1,"name":"VER","team":"Red Bull Racing","position":1,"gap":"0","interval":"0","lap":12,"lapTime":80.123,"tyre":"SOFT","stint":3}],
-  "control":[],
-  "errors":[]
-}
+## Start locally
+```bash
+cd f1-pro-backend
+npm install
+npm start
 ```
+Open `http://localhost:8787/api/f1/health` and `/api/f1/snapshot`.
 
-The adapter must maintain the current state across SignalR delta messages, reconnect, and normalize race/qualifying/practice data. If car telemetry is available, use a separate authenticated endpoint rather than adding large arrays to every snapshot.
+## Environment
+Copy `.env.example` into your host's secret configuration (Node does not automatically load .env files). Configure `FRONTEND_ORIGIN`, and optionally `F1_TV_ACCESS_TOKEN` if obtained legitimately. Never commit tokens or cookies.
 
-## Frontend
-Set a private backend URL in the F1 tab. The URL is only held in page memory. OpenF1/Jolpica remain fallback sources. A backend with browser access must configure CORS appropriately and enforce its own access control.
+**Important:** This implements SignalR transport and timing-state normalization, but F1's unofficial endpoint, auth behavior, and message formats can change. Live connectivity and Pro-only telemetry have **not been validated**. `CarData.z` and `Position.z` are subscribed but are not decoded or exposed by this first implementation.
 
-## Deployment
-GitHub Pages hosts only static files. Deploy the authenticated connector to a private always-on server or service that supports long-lived outbound WebSocket connections. GitHub Actions scheduled workflows are not a reliable replacement for a continuous live feed.
+## API
+- `GET /api/f1/health` connection status
+- `GET /api/f1/snapshot` live classification in the SPORTSDASH schema
+
+This public repository does not include F1 TV login automation. A Pro account does not confer a right to redistribute authenticated data. Restrict deployment to authorized personal use. If using `DASHBOARD_API_KEY`, the current public frontend does not support passing it; configure a private authenticated gateway rather than putting the key in client JavaScript.
+
+## Hosting
+GitHub Pages serves only the static frontend. Run this backend on a separate persistent Node.js host with WebSocket egress. GitHub Actions is not suitable for an always-on streaming connection.
+
+The frontend can be pointed at the backend from its F1 tab. The F1 adapter falls back to OpenF1/Jolpica if the backend is unavailable.
