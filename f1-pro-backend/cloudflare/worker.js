@@ -54,7 +54,7 @@ export class F1State extends DurableObject {
       // F1 currently uses an AWS ALB sticky cookie for its negotiate/upgrade pair.
       const headers={Authorization:'Bearer '+token};
       try{
-        const pre=await fetch(FEED+'/negotiate?negotiateVersion=1',{method:'OPTIONS',headers});
+        const pre=await fetch(FEED+'/negotiate?negotiateVersion=1',{method:'OPTIONS'});
         const m=(pre.headers.get('set-cookie')||'').match(/(?:^|,\s*)AWSALBCORS=([^;]+)/i);
         if(m)headers.Cookie='AWSALBCORS='+m[1];
       }catch{ /* Some upstream POPs do not require the sticky cookie. */ }
@@ -99,6 +99,7 @@ export class F1State extends DurableObject {
       } else if(m.type===1&&String(m.target).toLowerCase()==='feed'){
         const a=m.arguments||[];
         if(typeof a[0]==='string')this.ingest(a[0],a[1]);
+        else if(Array.isArray(a[0])&&typeof a[0][0]==='string')this.ingest(a[0][0],a[0][1]);
         else if(Array.isArray(a[0]))for(const item of a[0])if(Array.isArray(item)&&typeof item[0]==='string')this.ingest(item[0],item[1]);
       } else if(m.type===3&&m.invocationId==='1'&&m.result&&typeof m.result==='object'){
         for(const [topic,value] of Object.entries(m.result))this.ingest(topic,value);
